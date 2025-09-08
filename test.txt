@@ -1,0 +1,10 @@
+  // instructor
+  // { name: "Manage Courses", href: "/instructor/courses", icon: <FaBook /> },
+  // { name: "Manage Modules & Lessons", href: "/instructor/modules", icon: <FaTasks /> },
+  // { name: "Reviews & Feedback", href: "/instructor/reviews", icon: <FaStar /> },
+  // { name: "Payment Reports", href: "/instructor/payments", icon: <FaMoneyBill /> },
+  // // admin
+//   { name: "User Management", href: "/admin/users", icon: <FaUsers /> },
+//   { name: "Category Management", href: "/admin/categories", icon: <FaFolder /> },
+//   { name: "Payment Monitoring", href: "/admin/payments", icon: <FaChartLine /> },
+//   { name: "Review Moderation", href: "/admin/reviews", icon: <FaStar /> },
