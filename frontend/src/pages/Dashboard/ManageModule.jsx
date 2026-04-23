@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useModules } from "../../hooks/useModules";
 import { useCourses } from "../../hooks/useCourses";
 import ModuleModal from "../../components/Dashboard/ModuleModal";
-import ManageLesson from "./ManageLesson";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ManageModule() {
@@ -16,8 +15,6 @@ export default function ManageModule() {
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState(null);
-  const [view, setView] = useState("modules");
-  const [activeModuleId, setActiveModuleId] = useState(null);
 
   const itemsPerPage = 7;
 
@@ -95,24 +92,6 @@ export default function ManageModule() {
   const handleBackToCourses = () => {
     navigate("/dashboard/instructor/courses");
   };
-
-  // Jika sedang view lessons
-  if (view === "lessons") {
-    return (
-      <div className="max-w-6xl mx-auto p-6">
-        <button
-          onClick={() => {
-            setView("modules");
-            setActiveModuleId(null);
-          }}
-          className="mb-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
-        >
-          ⬅ Back to Modules
-        </button>
-        <ManageLesson moduleId={activeModuleId} />
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -210,10 +189,9 @@ export default function ManageModule() {
                         Edit
                       </button>
                       <button
-                        onClick={() => {
-                          setActiveModuleId(module.id);
-                          setView("lessons");
-                        }}
+                        onClick={() =>
+                          navigate(`/dashboard/instructor/modules/${module.id}/lessons`)
+                        }
                         className="text-[#F59E0B] hover:underline text-sm"
                       >
                         Lessons

@@ -26,6 +26,7 @@ import { Toaster } from 'react-hot-toast'
 import ManageTags from './pages/Dashboard/ManageTags'
 import CourseForm from './pages/Dashboard/CourseForm'
 import MyModule from './pages/Dashboard/MyModule'
+import LessonFormPage from './pages/Dashboard/LessonFormPage'
 
 const App = () => {
   const location = useLocation();
@@ -87,16 +88,36 @@ const App = () => {
               <ManageCourse />
             </ProtectedRoute>
           } />
-          <Route path="instructor/modules/:id" element={
+          <Route 
+            path="instructor/courses/:id/modules" 
+            element={
             <ProtectedRoute roles={["instructor"]}>
               <ManageModule />
             </ProtectedRoute>
           } />
-          <Route path="instructor/lessons" element={
+          <Route path="instructor/modules/:moduleId/lessons" element={
             <ProtectedRoute roles={["instructor"]}>
               <ManageLesson />
             </ProtectedRoute>
           } />
+
+          <Route
+            path="instructor/modules/:moduleId/lessons/new"
+            element={
+              <ProtectedRoute roles={["instructor"]}>
+                <LessonFormPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+          path="instructor/modules/:moduleId/lessons/:lessonId/edit"
+          element={
+            <ProtectedRoute roles={["instructor"]}>
+              <LessonFormPage />
+            </ProtectedRoute>
+          }
+/>
 
           {/* khusus admin */}
           <Route path="admin/users" element={

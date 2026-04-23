@@ -12,6 +12,31 @@ export const useLessons = () => {
     withCredentials: true,
   });
 
+  // Helper untuk mengubah plain object menjadi FormData jika ada file
+  const preparePayload = (data) => {
+    // Jika ada file atau ini adalah request multipart, gunakan FormData
+    if (data.file || data.content_type === "pdf") {
+      const formData = new FormData();
+      
+      // Masukkan semua data teks ke FormData
+      if (data.title) formData.append("title", data.title);
+      if (data.content_type) formData.append("content_type", data.content_type);
+      if (data.content) formData.append("content", data.content);
+      if (data.position) formData.append("position", data.position);
+      if (data.resource_url) formData.append("resource_url", data.resource_url);
+      
+      // Append file dengan key 'file' (pastikan ini sesuai dengan upload.single('file') di router backend)
+      if (data.file) {
+        formData.append("resource", data.file);
+      }
+      
+      return formData;
+    }
+    
+    const { file: _file, ...jsonData } = data;
+    return jsonData;
+  };
+
   // List lessons by module
   const fetchLessons = async (moduleId) => {
     setLoading(true);
@@ -31,7 +56,8 @@ export const useLessons = () => {
     if (!authUser) return;
     setLoading(true);
     try {
-      const res = await axios.post(`/api/v1/lesson/modules/${moduleId}/lessons`, data, getConfig());
+      const payload = preparePayload(data);
+      const res = await axios.post(`/api/v1/lesson/modules/${moduleId}/lessons`, payload, getConfig());
       toast.success("Lesson created successfully!");
       return res.data;
     } catch (error) {
@@ -47,7 +73,8 @@ export const useLessons = () => {
     if (!authUser) return;
     setLoading(true);
     try {
-      const res = await axios.put(`/api/v1/lesson/lessons/${id}`, data, getConfig());
+      const payload = preparePayload(data);
+      const res = await axios.put(`/api/v1/lesson/lessons/${id}`, payload, getConfig());
       toast.success("Lesson updated successfully!");
       return res.data;
     } catch (error) {

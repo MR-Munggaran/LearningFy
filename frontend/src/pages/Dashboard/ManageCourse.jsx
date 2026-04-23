@@ -28,10 +28,8 @@ export default function ManageCourse() {
         console.error("Failed to fetch courses", err);
       }
     };
-    const scrollToTop = () => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-    };
-    scrollToTop();
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     loadCourses();
   }, []);
 
@@ -62,7 +60,7 @@ export default function ManageCourse() {
 
   // Fungsi untuk navigasi ke manage module
   const handleManageModules = (courseId) => {
-    navigate(`/dashboard/instructor/modules/${courseId}`);
+    navigate(`/dashboard/instructor/courses/${courseId}/modules`);
   };
 
   return (
@@ -124,7 +122,7 @@ export default function ManageCourse() {
                   >
                     <td className="px-4 py-3">{course.title}</td>
                     <td className="px-4 py-3">
-                      {course.description.length > 50
+                      {course.description?.length > 50
                         ? course.description.substring(0, 50) + "..."
                         : course.description}
                     </td>
