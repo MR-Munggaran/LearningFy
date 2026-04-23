@@ -54,7 +54,7 @@ export const EnrollmentModel = {
   async findByUser(user_id) {
     const res = await pool.query(
       `SELECT e.id, e.user_id, e.course_id, e.status, e.enrolled_at,
-              c.title AS course_title, c.price, c.instructor_id,
+              c.title AS course_title, c.price, c.image, c.instructor_id,
               u.name  AS instructor_name
        FROM enrollments e
        JOIN courses c ON c.id = e.course_id
