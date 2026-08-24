@@ -55,8 +55,10 @@ git pull
 ### 2. Buat database (sekali saja)
 
 ```bash
-docker exec postgres psql -U admin -c "CREATE DATABASE learningfy OWNER admin;"
+docker exec postgres psql -U admin -d postgres -c "CREATE DATABASE learningfy OWNER admin;"
 ```
+
+> `-d postgres` wajib — tanpa itu `psql` mencoba konek ke database bernama `admin` yang tidak ada.
 
 Lewati langkah ini jika database sudah dibuat sebelumnya.
 
@@ -167,6 +169,7 @@ docker exec postgres pg_dump -U admin learningfy > learningfy_backup_$(date +%F)
 
 | Masalah | Solusi |
 |---|---|
+| `FATAL: database "admin" does not exist` saat create DB | Tambahkan `-d postgres` pada perintah `psql` |
 | `network homelab not found` | Buat dulu: `docker network create homelab` |
 | Backend gagal connect DB | Pastikan DB sudah dibuat (langkah 2) & cek `PG_URI` di `.env` |
 | Gambar/PDF lesson tidak muncul | Seed memakai URL publik; cek koneksi internet server |

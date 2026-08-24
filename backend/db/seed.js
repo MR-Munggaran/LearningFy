@@ -463,9 +463,10 @@ async function seed() {
     if (mods.rowCount === 0) return;
     await pool.query(
       `INSERT INTO progress (enrollment_id, module_id, status, completed_at)
-       VALUES ($1,$2,$3, CASE WHEN $3 = 'completed' THEN NOW() ELSE NULL END)
+       VALUES ($1,$2,$3,$4)
        ON CONFLICT DO NOTHING`,
-      [enrollmentId, mods.rows[0].id, status]
+      [enrollmentId, mods.rows[0].id, status,
+        status === "completed" ? new Date() : null]
     );
   };
 
