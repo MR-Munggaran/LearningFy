@@ -9,4 +9,5 @@ export const ENV_VARS = {
   NODE_ENV: process.env.NODE_ENV,
   MIDTRANS_SERVER_KEY: process.env.MIDTRANS_SERVER_KEY,
   MIDTRANS_CLIENT_KEY: process.env.MIDTRANS_CLIENT_KEY,
+  CLIENT_ORIGIN: process.env.CLIENT_ORIGIN,
 };

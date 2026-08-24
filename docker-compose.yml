@@ -1,0 +1,66 @@
+name: learningfy
+
+services:
+  backend:
+    build: ./backend
+    container_name: learningfy-backend
+    restart: unless-stopped
+    networks:
+      - homelab
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    volumes:
+      # upload user (gambar/PDF) tetap ada walau container di-recreate
+      - learningfy_uploads:/app/utils/upload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  frontend:
+    build: ./frontend
+    container_name: learningfy-frontend
+    restart: unless-stopped
+    networks:
+      - homelab
+    ports:
+      - "3010:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  learningfy_uploads:
+
+networks:
+  homelab:
+    external: true

@@ -17,8 +17,12 @@ import  reviewRoutes  from "./routes/review.route.js";
 const app = express();
 const PORT = ENV_VARS.PORT;
 
+const allowedOrigins = ENV_VARS.CLIENT_ORIGIN
+  ? ENV_VARS.CLIENT_ORIGIN.split(",").map((origin) => origin.trim())
+  : "http://localhost:5173";
+
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
