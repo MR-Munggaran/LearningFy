@@ -15,7 +15,8 @@ services:
       # upload user (gambar/PDF) tetap ada walau container di-recreate
       - learningfy_uploads:/app/utils/upload
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/"]
+      # pakai 127.0.0.1 eksplisit: "localhost" bisa resolve ke ::1 (IPv6)
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:4000/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -42,7 +43,8 @@ services:
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      # pakai 127.0.0.1 eksplisit: "localhost" bisa resolve ke ::1 (IPv6)
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

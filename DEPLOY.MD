@@ -64,14 +64,23 @@ Lewati langkah ini jika database sudah dibuat sebelumnya.
 
 ### 3. Lengkapi `.env`
 
-File `.env` sudah tersedia di root. Yang wajib dicek:
+File `.env` tidak ikut di-commit (berisi kredensial). Buat dari template:
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Variabel yang **wajib ada** (salah satu hilang → backend gagal start/port salah):
 
 ```env
-PG_URI=postgresql://admin:Luffy-25@postgres:5432/learningfy   # sudah terisi
-JWT_SECRET=...                                                # sudah digenerate
+NODE_ENV=production
+PORT=4000                # WAJIB — tanpa ini backend listen di 5000
+PG_URI=postgresql://admin:Luffy-25@postgres:5432/learningfy
+JWT_SECRET=<generate acak>
 MIDTRANS_SERVER_KEY=<isi key sandbox Midtrans>
 MIDTRANS_CLIENT_KEY=<isi key sandbox Midtrans>
-CLIENT_ORIGIN=http://localhost:5173,http://localhost:3010     # tambah domain/IP jika akses via domain
+CLIENT_ORIGIN=http://localhost:5173,http://localhost:3010   # tambah domain/IP jika akses via domain
 ```
 
 > Key sandbox Midtrans cukup untuk demo/portfolio (`isProduction: false` di kode).
@@ -170,6 +179,8 @@ docker exec postgres pg_dump -U admin learningfy > learningfy_backup_$(date +%F)
 | Masalah | Solusi |
 |---|---|
 | `FATAL: database "admin" does not exist` saat create DB | Tambahkan `-d postgres` pada perintah `psql` |
+| Backend listen di 5000 / healthcheck gagal / curl :4000 refused | `PORT=4000` hilang dari `.env` — tambahkan lalu `docker compose up -d` |
+| Container `(unhealthy)` tapi aplikasi normal | Healthcheck lama pakai `localhost` yang resolve ke `::1` (IPv6) — sudah diperbaiki di repo; pastikan `git pull` + rebuild |
 | `network homelab not found` | Buat dulu: `docker network create homelab` |
 | Backend gagal connect DB | Pastikan DB sudah dibuat (langkah 2) & cek `PG_URI` di `.env` |
 | Gambar/PDF lesson tidak muncul | Seed memakai URL publik; cek koneksi internet server |
