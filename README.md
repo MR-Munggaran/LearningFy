@@ -1,6 +1,6 @@
 # Learningfy - E-Learning Platform
 
-Platform e-learning full-stack dengan sistem manajemen kursus, role-based access (Admin, Instructor, Student), integrasi pembayaran Midtrans, dan tracking progres belajar.
+Platform e-learning full-stack dengan sistem manajemen kursus, role-based access (Admin, Instructor, Student), integrasi pembayaran Midtrans, dan tracking progres belajar. Siap deploy dengan Docker.
 
 ---
 
@@ -10,11 +10,11 @@ Platform e-learning full-stack dengan sistem manajemen kursus, role-based access
 - **Manajemen Kursus** — CRUD kursus, modul, dan lesson
 - **Kategori & Tags** — Pengelompokan konten
 - **Enrollment & Progres** — Siswa dapat mendaftar kursus dan melacak progres belajar
-- **Pembayaran** — Integrasi Midtrans untuk transaksi
+- **Pembayaran** — Integrasi Midtrans (Snap) untuk transaksi
 - **Review & Rating** — Ulasan untuk setiap kursus
-- **Rich Text Editor** — Quill & CKEditor 5 untuk konten lesson
+- **Rich Text Editor** — Quill, CKEditor 5 & Trix untuk konten lesson
 - **File Upload** — Gambar dan dokumen PDF
-- **Animasi UI** — Framer Motion, GSAP, Swiper
+- **Animasi UI** — Framer Motion, GSAP, Swiper, OGL
 
 ---
 
@@ -31,6 +31,10 @@ Platform e-learning full-stack dengan sistem manajemen kursus, role-based access
 | `bcryptjs` | Hashing password |
 | `midtrans-client` | Payment gateway |
 | `multer` | File upload |
+| `cookie-parser` | Parsing cookie JWT |
+| `cors` | Whitelist origin via `CLIENT_ORIGIN` |
+| `dotenv` | Environment variables |
+| `uuid` | Generate ID order Midtrans |
 
 ### Frontend
 | Teknologi | Keterangan |
@@ -43,6 +47,7 @@ Platform e-learning full-stack dengan sistem manajemen kursus, role-based access
 | Framer Motion | Animasi |
 | GSAP | Animasi lanjutan |
 | Swiper | Carousel/slider |
+| Quill / CKEditor 5 / Trix | Rich text editor |
 | React Hot Toast | Notifikasi |
 | React Icons | Icon set |
 
@@ -51,28 +56,32 @@ Platform e-learning full-stack dengan sistem manajemen kursus, role-based access
 ## Struktur Folder
 
 ```
-Learningfy/
+LearningFy/
 ├── backend/
 │   ├── config/            # Koneksi DB & env vars
 │   ├── controllers/       # Business logic (auth, course, dll)
+│   ├── db/                # schema.sql (DDL) & seed.js (data dummy)
 │   ├── middlewares/       # JWT protect & authorization
 │   ├── models/            # Query database (raw SQL)
 │   ├── routes/            # Route definitions
-│   ├── utils/             # JWT helper, Multer config
+│   ├── utils/             # JWT helper, Multer config, folder upload
+│   ├── Dockerfile         # Image backend (Node alpine, non-root)
 │   └── index.js           # Entry point
 ├── frontend/
 │   ├── public/            # Assets statis
 │   ├── src/
-│   │   ├── assets/        # Gambar & icon
-│   │   ├── components/    # Komponen reusable
+│   │   ├── components/    # Komponen reusable (+ Dashboard, Home, dll)
 │   │   ├── context/       # AuthContext
-│   │   ├── hooks/         # Custom hooks (data fetching)
-│   │   ├── pages/         # Halaman & dashboard
+│   │   ├── hooks/         # Custom hooks (data fetching per resource)
+│   │   ├── pages/         # Halaman publik & dashboard
 │   │   ├── App.jsx        # Routing utama
 │   │   └── main.jsx       # Entry point React
-│   ├── index.html
-│   ├── vite.config.js
-│   └── package.json
+│   ├── Dockerfile         # Multi-stage: build Vite → Nginx
+│   ├── nginx.conf         # SPA fallback + proxy /api & /uploads
+│   └── vite.config.js     # Proxy dev ke backend
+├── .env.example           # Template env production (root, dipakai compose)
+├── docker-compose.yml     # Orkestrasi frontend + backend
+├── DEPLOY.MD              # Panduan deploy Docker
 └── README.md
 ```
 
@@ -80,7 +89,10 @@ Learningfy/
 
 ## Environment Variables
 
-Buat file `.env` di folder `backend/` berdasarkan `.env.example`:
+Salin `.env.example` sesuai mode yang dipakai:
+
+- **Lokal (dev)**: salin `backend/.env.example` menjadi `backend/.env`
+- **Docker (produksi)**: salin `.env.example` di root menjadi `.env`
 
 ```
 PG_URI=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
@@ -89,7 +101,10 @@ JWT_SECRET=your_jwt_secret_key
 NODE_ENV=development
 MIDTRANS_SERVER_KEY=your_midtrans_server_key
 MIDTRANS_CLIENT_KEY=your_midtrans_client_key
+CLIENT_ORIGIN=http://localhost:5173
 ```
+
+> `PORT` kosong akan fallback ke `5000`. `CLIENT_ORIGIN` menerima beberapa origin sekaligus, pisahkan dengan koma.
 
 ---
 
@@ -103,9 +118,16 @@ MIDTRANS_CLIENT_KEY=your_midtrans_client_key
 ```bash
 cd backend
 npm install
-npm start
+npm run seed    # opsional: terapkan schema.sql + data dummy demo
+npm start       # nodemon
 ```
-Server berjalan di `http://localhost:3000`
+Server berjalan di `http://localhost:3000` (sesuaikan `PORT` di `.env`).
+
+Akun demo hasil seed:
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@learningfy.id | admin123 |
+| Instructor | budi@learningfy.id | instructor123 |
 
 ### Frontend
 ```bash
@@ -113,7 +135,22 @@ cd frontend
 npm install
 npm run dev
 ```
-Aplikasi berjalan di `http://localhost:5173` (proxy API ke backend)
+Aplikasi berjalan di `http://localhost:5173` (proxy `/api` & `/uploads` ke backend via Vite).
+
+---
+
+## Deploy dengan Docker
+
+```bash
+cp .env.example .env   # isi kredensial produksi
+docker compose up -d --build
+```
+
+- Frontend (Nginx): `http://localhost:3010` — reverse proxy `/api` & `/uploads` ke backend, satu origin sehingga bebas masalah CORS
+- Backend: `http://localhost:4000`
+- Upload user tersimpan di volume `learningfy_uploads`
+
+Panduan lengkap ada di [`DEPLOY.MD`](./DEPLOY.MD).
 
 ---
 
